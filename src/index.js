@@ -1,106 +1,110 @@
 var $ = require('jquery')
 var R = require('ramda')
 
-var directions = {
-  left: 'left',
-  right: 'right',
-  up: 'up',
-  down: 'down'
+window.R = R
+
+var directions = { left: 'left', right: 'right', up: 'up', down: 'down' }
+
+var keys = [
+  { code: 37, direction: directions.left  },
+  { code: 39, direction: directions.right },
+  { code: 38, direction: directions.up    },
+  { code: 40, direction: directions.down  }
+]
+
+var dimensions = {
+  width: 600,
+  height: 600
 }
 
-var CANVASWIDTH = 600
-var CANVASHEIGHT = 600
-
-var PLAYERRADIUS = 20
+var state = {
+  enemies: [],
+  keyspressed: [],
+  keypresses: {
+    left: false,
+    right: false,
+    up: false,
+    down: false
+  },
+  player: {
+    x: dimensions.width / 2,
+    y: dimensions.height / 2,
+    r: 20
+  }
+}
 
 var SPEED = 5
 
-var keyPressed = {
-  right: false,
-  left: false,
-  up: false,
-  down: false
+var getDirections = R.map(
+  R.compose(
+    R.prop('direction'),
+    (code) => R.find(R.propEq('code', code), keys)
+  )
+)
+
+var update = (path) => (value) =>
+  { state = R.assocPath(path, value, state) }
+
+var move = () => {
+  var keyspressed = R.slice(0, 2, getDirections(state.keyspressed))
+  R.forEach((key) => state.keypresses[key] = true, keyspressed)
 }
 
-var keyCodes = {
-  left: 37,
-  right: 39,
-  down: 40,
-  up: 38
+var keyDownHandler = (e) => {
+    var addKeyCodes = R.compose(
+      update(['keyspressed']),
+      R.uniq,
+      R.append(e.which) // add keycode
+    )
+
+    addKeyCodes(state.keypresses)
+    move()
 }
 
-var position = {
-  x: CANVASWIDTH / 2,
-  y: CANVASHEIGHT / 2,
-  r: PLAYERRADIUS
+var keyUpHandler = () => {
+  update(['keypressed'])([])
+  update(['keypresses'])({ left: false, right: false, up: false, down: false })
+}
+
+var drawPlayer = (ctx) => {
+  ctx.beginPath();
+  ctx.arc(state.player.x, state.player.y, state.player.r, 0, Math.PI * 2, false);
+  ctx.fillStyle = "white";
+  ctx.fill();
+  ctx.closePath();
+}
+
+var draw = (canvas, ctx) => {
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
+  drawPlayer(ctx)
+
+  if (state.keypresses.left && state.keypresses.up) {
+    state.player.x -= SPEED
+    state.player.y -= SPEED
+  } else if (state.keypresses.right && state.keypresses.up) {
+    state.player.x += SPEED
+    state.player.y -= SPEED
+  } else if (state.keypresses.left && state.keypresses.down) {
+    state.player.x -= SPEED
+    state.player.y += SPEED
+  } else if (state.keypresses.right && state.keypresses.down) {
+    state.player.x += SPEED
+    state.player.y += SPEED
+  } else if (state.keypresses.left) {
+    state.player.x -= SPEED
+  } else if (state.keypresses.right) {
+    state.player.x += SPEED
+  } else if (state.keypresses.up) {
+    state.player.y -= SPEED
+  } else if (state.keypresses.down) {
+    state.player.y += SPEED
+  }
 }
 
 var canvas = $('#game')[0]
 var ctx = canvas.getContext('2d')
 
-$(document).keydown(keyDownHandler)
+$(document).keydown((e) => keyDownHandler(e))
 $(document).keyup(keyUpHandler)
 
-function move(direction) {
-  switch (direction) {
-    case LEFT:
-      keyPressed.left = true
-      break
-    case RIGHT:
-      keyPressed.right = true
-      break
-    case UP:
-      keyPressed.up = true
-      break
-    case DOWN:
-      keyPressed.down = true
-      break
-  }
-}
-
-function keyDownHandler (e) {
-  var keyCode = e.keyCode
-  if (keyCode === keyCodes.left) {
-    move(directions.left)
-  } else if (keyCode === keyCodes.right) {
-    move(directions.right)
-  } else if (keyCode === keyCodes.up) {
-    move(directions.up)
-  } else if (keyCode === keyCodes.down) {
-    move(directions.down)
-  }
-}
-
-function keyUpHandler () {
-  keyPressed.left = false
-  keyPressed.right = false
-  keyPressed.up = false
-  keyPressed.down = false
-}
-
-function drawPlayer (ctx) {
-  ctx.beginPath();
-  ctx.arc(position.x, position.y, position.r, 0, Math.PI * 2, false);
-  ctx.fillStyle = "white";
-  ctx.fill();
-  ctx.closePath();
-
-  if ( keyPressed.right ) {
-    position.x += SPEED
-  } else if ( keyPressed.left ) {
-    position.x -= SPEED
-  } else if ( keyPressed.up ) {
-    position.y -= SPEED
-  } else if ( keyPressed.down ) {
-    position.y += SPEED
-  }
-}
-
-function draw (canvas, ctx) {
-  ctx.clearRect(0, 0, canvas.width, canvas.height)
-  drawPlayer(ctx)
-}
-
-setInterval(function() {
-  draw(canvas, ctx)
-}, 10)
+setInterval(() => draw(canvas, ctx), 10)
