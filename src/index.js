@@ -1,8 +1,12 @@
 var $ = require('jquery')
 var R = require('ramda')
 
-var LEFT = 'left'
-var RIGHT = 'right'
+var directions = {
+  left: 'left',
+  right: 'right',
+  up: 'up',
+  down: 'down'
+}
 
 var CANVASWIDTH = 600
 var CANVASHEIGHT = 600
@@ -11,14 +15,18 @@ var PLAYERRADIUS = 20
 
 var SPEED = 5
 
-var keyPresses = {
+var keyPressed = {
   right: false,
-  left: false
+  left: false,
+  up: false,
+  down: false
 }
 
 var keyCodes = {
   left: 37,
-  right: 39
+  right: 39,
+  down: 40,
+  up: 38
 }
 
 var position = {
@@ -34,25 +42,40 @@ $(document).keydown(keyDownHandler)
 $(document).keyup(keyUpHandler)
 
 function move(direction) {
-  if(direction === LEFT) {
-    keyPresses.left = true
-  } else {
-    keyPresses.right = true
+  switch (direction) {
+    case LEFT:
+      keyPressed.left = true
+      break
+    case RIGHT:
+      keyPressed.right = true
+      break
+    case UP:
+      keyPressed.up = true
+      break
+    case DOWN:
+      keyPressed.down = true
+      break
   }
 }
 
 function keyDownHandler (e) {
   var keyCode = e.keyCode
   if (keyCode === keyCodes.left) {
-    move(LEFT)
+    move(directions.left)
   } else if (keyCode === keyCodes.right) {
-    move(RIGHT)
+    move(directions.right)
+  } else if (keyCode === keyCodes.up) {
+    move(directions.up)
+  } else if (keyCode === keyCodes.down) {
+    move(directions.down)
   }
 }
 
 function keyUpHandler () {
-  keyPresses.left = false
-  keyPresses.right = false
+  keyPressed.left = false
+  keyPressed.right = false
+  keyPressed.up = false
+  keyPressed.down = false
 }
 
 function drawPlayer (ctx) {
@@ -62,10 +85,14 @@ function drawPlayer (ctx) {
   ctx.fill();
   ctx.closePath();
 
-  if ( keyPresses.right ) {
+  if ( keyPressed.right ) {
     position.x += SPEED
-  } else if ( keyPresses.left ) {
+  } else if ( keyPressed.left ) {
     position.x -= SPEED
+  } else if ( keyPressed.up ) {
+    position.y -= SPEED
+  } else if ( keyPressed.down ) {
+    position.y += SPEED
   }
 }
 
