@@ -35,11 +35,9 @@ var state = {
 
 var SPEED = 5
 
-var getDirections = R.map(
-  R.compose(
-    R.prop('direction'),
-    (code) => R.find(R.propEq('code', code), keys)
-  )
+var getDirections = R.compose(
+  R.map(R.compose(R.prop('direction'), (code) => R.find(R.propEq('code', code), keys))),
+  R.filter(R.flip(R.contains)(R.map((k) => k.code, keys)))
 )
 
 var update = (path) => (value) =>
