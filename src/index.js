@@ -1,17 +1,6 @@
 var $ = require('jquery')
 var R = require('ramda')
 
-window.R = R
-
-var directions = { left: 'left', right: 'right', up: 'up', down: 'down' }
-
-var keys = [
-  { code: 37, direction: directions.left  },
-  { code: 39, direction: directions.right },
-  { code: 38, direction: directions.up    },
-  { code: 40, direction: directions.down  }
-]
-
 var dimensions = {
   width: 600,
   height: 600
@@ -19,7 +8,6 @@ var dimensions = {
 
 var state = {
   enemies: [],
-  keyspressed: [],
   keypresses: {
     left: false,
     right: false,
@@ -35,33 +23,35 @@ var state = {
 
 var SPEED = 5
 
-var getDirections = R.compose(
-  R.map(R.compose(R.prop('direction'), (code) => R.find(R.propEq('code', code), keys))),
-  R.filter(R.flip(R.contains)(R.map((k) => k.code, keys)))
-)
-
-var update = (path) => (value) =>
-  { state = R.assocPath(path, value, state) }
-
-var move = () => {
-  var keyspressed = R.slice(0, 2, getDirections(state.keyspressed))
-  R.forEach((key) => state.keypresses[key] = true, keyspressed)
-}
-
 var keyDownHandler = (e) => {
-    var addKeyCodes = R.compose(
-      update(['keyspressed']),
-      R.uniq,
-      R.append(e.which) // add keycode
-    )
 
-    addKeyCodes(state.keypresses)
-    move()
+    if (e.keyCode === 37) {
+      state.keypresses.left = true
+    }
+    else if (e.keyCode === 39) {
+      state.keypresses.right = true
+    }
+    else if (e.keyCode === 38) {
+      state.keypresses.up = true
+    }
+    else if (e.keyCode === 40) {
+      state.keypresses.down = true
+    }
 }
 
-var keyUpHandler = () => {
-  update(['keypressed'])([])
-  update(['keypresses'])({ left: false, right: false, up: false, down: false })
+var keyUpHandler = (e) => {
+  if (e.keyCode === 37) {
+    state.keypresses.left = false
+  }
+  else if (e.keyCode === 39) {
+    state.keypresses.right = false
+  }
+  else if (e.keyCode === 38) {
+    state.keypresses.up = false
+  }
+  else if (e.keyCode === 40) {
+    state.keypresses.down = false
+  }
 }
 
 var drawPlayer = (ctx) => {
@@ -76,25 +66,19 @@ var draw = (canvas, ctx) => {
   ctx.clearRect(0, 0, canvas.width, canvas.height)
   drawPlayer(ctx)
 
-  if (state.keypresses.left && state.keypresses.up) {
+  if (state.keypresses.left) {
     state.player.x -= SPEED
-    state.player.y -= SPEED
-  } else if (state.keypresses.right && state.keypresses.up) {
+  }
+
+  if (state.keypresses.right) {
     state.player.x += SPEED
+  }
+
+  if (state.keypresses.up) {
     state.player.y -= SPEED
-  } else if (state.keypresses.left && state.keypresses.down) {
-    state.player.x -= SPEED
-    state.player.y += SPEED
-  } else if (state.keypresses.right && state.keypresses.down) {
-    state.player.x += SPEED
-    state.player.y += SPEED
-  } else if (state.keypresses.left) {
-    state.player.x -= SPEED
-  } else if (state.keypresses.right) {
-    state.player.x += SPEED
-  } else if (state.keypresses.up) {
-    state.player.y -= SPEED
-  } else if (state.keypresses.down) {
+  }
+
+  if (state.keypresses.down) {
     state.player.y += SPEED
   }
 }
@@ -102,7 +86,7 @@ var draw = (canvas, ctx) => {
 var canvas = $('#game')[0]
 var ctx = canvas.getContext('2d')
 
-$(document).keydown((e) => keyDownHandler(e))
+$(document).keydown(keyDownHandler)
 $(document).keyup(keyUpHandler)
 
 setInterval(() => draw(canvas, ctx), 10)
