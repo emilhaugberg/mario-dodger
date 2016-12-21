@@ -3,4 +3,5 @@ canvas {
   margin: 0 auto;
   margin-top: 75px;
   background-color: #bfbfbf;
+  border: 5px solid green;
 }
