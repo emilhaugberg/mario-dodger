@@ -128,6 +128,22 @@ var removeObsoleteBalls = () => {
   }, state.balls)
 }
 
+var collision = () => {
+  var collided = (ball) => {
+    if (
+      ball.x + ball.r > state.player.x - state.player.r
+      && ball.x - ball.r < state.player.x + state.player.r
+      && ball.y + ball.r > state.player.y - state.player.r
+      && ball.y - ball.r < state.player.y + state.player.r
+    ) {
+      console.log('collision')
+      clearInterval(main)
+    }
+  }
+
+  R.forEach(collided, state.balls)
+}
+
 var draw = () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height)
   drawPlayer()
@@ -141,7 +157,7 @@ var draw = () => {
   drawBall()
   removeObsoleteBalls()
 
-  console.log(R.length(state.balls))
+  collision()
 
   $('#seconds').html(seconds)
 }
@@ -152,4 +168,4 @@ var ctx = canvas.getContext('2d')
 $(document).keydown(keyDownHandler)
 $(document).keyup(keyUpHandler)
 
-setInterval(() => draw(), 10)
+var main = setInterval(() => draw(), 10)
