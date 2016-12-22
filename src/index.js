@@ -32,6 +32,8 @@ var directions = {
 
 var goombas = []
 
+var lifes = [1,2,3]
+
 var mario = {
   x: 0,
   y: dimensions.height - height - 85,
@@ -118,6 +120,19 @@ var drawSeconds = (ctx) => {
   ctx.fillText('Seconds: ' + seconds, 1175, 65)
 }
 
+var drawMushroom = (x) => {
+  var img = new Image()
+  img.src = '/assets/images/mushroom.png'
+  ctx.drawImage(img, x, 70, 50, 50)
+}
+
+var drawLifes = () => {
+  ctx.font = ('50px VT323')
+  ctx.fillStyle = 'white'
+  ctx.fillText('Lifes', 75, 50)
+  R.forEach((i) => drawMushroom(i * 50) , lifes)
+}
+
 var draw = () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height)
   drawMario(ctx, mario)
@@ -128,6 +143,7 @@ var draw = () => {
   movegoombas()
   filtergoombas()
   drawSeconds(ctx)
+  drawLifes()
 
   if (keysPressed.right && mario.x + width < dimensions.width) {
     mario.x += SPEED
