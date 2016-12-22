@@ -4,7 +4,7 @@ var R = require('ramda')
 var frames = 0
 
 var SPEED = 5
-var MUSHROOMSPEED = 5
+var goombaSPEED = 5
 
 var width = 75
 var height = 75
@@ -29,7 +29,7 @@ var directions = {
   right: 'right'
 }
 
-var mushrooms = []
+var goombas = []
 
 var mario = {
   x: 0,
@@ -44,7 +44,7 @@ var marioImages = [
 
 var random = (min, max) => Math.random() * (max - min) + min
 
-var addMushroom = () => {
+var addgoomba = () => {
   var randomR = Math.floor(random(10, 20))
   var randomAttr = random(25, 75)
   var mush = {
@@ -54,25 +54,25 @@ var addMushroom = () => {
     width: Math.floor(randomAttr)
   }
 
-  mushrooms = R.append(mush, mushrooms)
+  goombas = R.append(mush, goombas)
 }
 
-var drawMushrooms = () => {
+var drawgoombas = () => {
   R.forEach((mush) => {
     var img = new Image()
-    img.src = '/assets/images/mushroom.png'
+    img.src = '/assets/images/goomba.png'
     ctx.drawImage(img, mush.x, mush.y, mush.width, mush.height)
-  }, mushrooms)
+  }, goombas)
 }
 
-var moveMushrooms = () => {
-  mushrooms = R.map((mush) => {
-    return { x: mush.x, y: mush.y += MUSHROOMSPEED, width: mush.width, height: mush.height }
-  }, mushrooms)
+var movegoombas = () => {
+  goombas = R.map((mush) => {
+    return { x: mush.x, y: mush.y += goombaSPEED, width: mush.width, height: mush.height }
+  }, goombas)
 }
 
-var filterMushrooms = () => {
-  mushrooms = R.reject((mush) => mush.y > dimensions.height, mushrooms)
+var filtergoombas = () => {
+  goombas = R.reject((mush) => mush.y > dimensions.height, goombas)
 }
 
 var drawMario = (ctx, mario) => {
@@ -115,11 +115,11 @@ var draw = () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height)
   drawMario(ctx, mario)
 
-  if (frames % 20 == 0) addMushroom()
+  if (frames % 20 == 0) addgoomba()
 
-  drawMushrooms()
-  moveMushrooms()
-  filterMushrooms()
+  drawgoombas()
+  movegoombas()
+  filtergoombas()
 
   if (keysPressed.right && mario.x + width < dimensions.width) {
     mario.x += SPEED
