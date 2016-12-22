@@ -2,7 +2,7 @@ var $ = require('jquery')
 var R = require('ramda')
 
 var frames = 0
-var seconds = 0
+var score = 0
 
 var SPEED = 5
 var goombaSPEED = 5
@@ -114,10 +114,10 @@ var keyUpHandler = (e) => {
   }
 }
 
-var drawSeconds = (ctx) => {
+var drawScore = (ctx) => {
   ctx.font = ('50px VT323')
   ctx.fillStyle = 'white'
-  ctx.fillText('Seconds: ' + seconds, 1175, 65)
+  ctx.fillText('Score: ' + score, 1175, 65)
 }
 
 var drawMushroom = (x) => {
@@ -142,7 +142,7 @@ var draw = () => {
   drawgoombas()
   movegoombas()
   filtergoombas()
-  drawSeconds(ctx)
+  drawScore(ctx)
   drawLifes()
 
   if (keysPressed.right && mario.x + width < dimensions.width) {
@@ -154,7 +154,7 @@ var draw = () => {
 
   frames += 1
 
-  if (frames % 100 == 0) seconds += 1
+  if (frames % 100 == 0) score += 1
 }
 
 var canvas = $('#game')[0]
