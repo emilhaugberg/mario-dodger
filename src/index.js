@@ -51,11 +51,33 @@ var updateScore = () => () => {
 var main = () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height)
 
+  collisionDetection(state.mario, state.goombas)
   state.goombas = dr.updateGoombas(state)
   dr.draw(ctx, state)()
   moveMario()()
   updateScore()()
+
+  if (collisionDetection(state.mario, state.goombas)) {
+    clearInterval(game)
+  }
 }
+
+var collisionDetection = (mario, goombas) => {
+  // console.log(mario.x + ' ' + mario.y)
+  var collided = (goomba) => {
+    return (
+         goomba.x >= mario.x
+      && goomba.x + goomba.width <= mario.x + config.mario.width
+      && goomba.y >= mario.y
+      && goomba.y + goomba.height <= mario.y + config.mario.height
+    )
+  }
+
+  return R.compose(R.any(R.equals(true)), R.map(collided))(goombas)
+}
+
+window.collisionDetection = collisionDetection
+window.R = R
 
 var canvas = document.getElementById('game')
 var ctx = canvas.getContext('2d')
@@ -66,4 +88,4 @@ document.onkeyup = keyUpHandler
 var audio = new Audio('/assets/audio/mario.mp3')
 audio.play()
 
-var interval = setInterval(() => main(), 10)
+var game = setInterval(() => main(), 10)

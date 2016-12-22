@@ -25,7 +25,7 @@ var addgoomba = (state) => (goombas) => {
   }
 
   return R.ifElse(
-    () => state.frames % 20 == 0,
+    () => state.frames % 10 == 0,
     R.append(mush),
     R.identity
   )(goombas)

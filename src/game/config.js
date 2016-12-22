@@ -8,12 +8,12 @@ var dimensions = {
 
 var config = {
   mario: {
-    speed: 5,
+    speed: 7,
     width: 75,
     height: 75
   },
   goombas: {
-    speed: 5,
+    speed: 10,
     dimensions: {
       width: {
         min: 25,
