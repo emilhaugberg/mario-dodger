@@ -1,4 +1,3 @@
-var $ = require('jquery')
 var R = require('ramda')
 
 var dr = require('./game/draw')
@@ -10,13 +9,13 @@ var state = cs.state
 var canMoveRight = (x) => x < config.canvas.width
 var canMoveLeft =  (x) => x > 0
 
-var updateState = R.assocPath
-
 var keyCodeToDirection = R.cond([
   [ R.equals(config.keyCodes.left),  R.always(config.directions.left)     ],
   [ R.equals(config.keyCodes.right), R.always(config.directions.right)    ],
   [ R.T,                             R.always(config.directions.standing) ],
 ])
+
+var updateState = R.assocPath
 
 var updateDirection = (direction, moving, state) => {
   return R.compose(
@@ -58,10 +57,10 @@ var main = () => {
   updateScore()()
 }
 
-var canvas = $('#game')[0]
+var canvas = document.getElementById('game')
 var ctx = canvas.getContext('2d')
 
-$(document).keydown(keyDownHandler)
-$(document).keyup(keyUpHandler)
+document.onkeydown = keyDownHandler
+document.onkeyup = keyUpHandler
 
 var interval = setInterval(() => main(), 10)
