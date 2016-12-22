@@ -45,25 +45,36 @@ var draw = (ctx, state) => {
 }
 
 var updateGoombas = (state) => {
-  return R.compose(dr.addgoomba(state), dr.movegoombas, dr.filtergoombas, R.prop('goombas'))(state)
+  return R.compose(
+    dr.addgoomba(state),
+    dr.movegoombas,
+    dr.filtergoombas,
+    R.prop('goombas')
+  )(state)
 }
 
+var moveMario = () => () => {
+  var mario = state.mario
+  if (state.keysPressed.right && canMoveRight(mario.x + config.mario.width)) {
+    state.mario.x += config.mario.speed
+  }
+  else if (state.keysPressed.left && canMoveLeft(mario.x > 0)) {
+    state.mario.x -= config.mario.speed
+  }
+}
+
+var updateScore = () => () => {
+  if (state.frames % 100 == 0) state.score += 1
+  state.frames += 1
+}
+
+// main game loop
 var main = () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height)
 
+  updateScore()()
   state.goombas = updateGoombas(state)
-
-  if (state.keysPressed.right && state.mario.x + config.mario.width < config.canvas.width) {
-    state.mario.x += config.mario.speed
-  }
-  else if (state.keysPressed.left && state.mario.x > 0) {
-    state.mario.x -= config.mario.speed
-  }
-
-  state.frames += 1
-
-  if (state.frames % 100 == 0) state.score += 1
-
+  moveMario()()
   draw(ctx, state)()
 }
 
