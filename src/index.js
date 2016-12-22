@@ -63,4 +63,7 @@ var ctx = canvas.getContext('2d')
 document.onkeydown = keyDownHandler
 document.onkeyup = keyUpHandler
 
+var audio = new Audio('/assets/audio/mario.mp3')
+audio.play()
+
 var interval = setInterval(() => main(), 10)
