@@ -1,4 +1,4 @@
-# Dodger
+# Mario Dodger
 
 ![](https://media.giphy.com/media/YmX38Z99EXFW8/giphy.gif)
 
