@@ -33,26 +33,6 @@ var keyUpHandler = (e) => {
   state = updateDirection(keyCodeToDirection(e.keyCode), false, state)
 }
 
-var draw = (ctx, state) => {
-  return () => {
-    dr.drawMario(ctx, state)()
-    dr.drawgoombas(ctx, state)()
-
-    dr.drawScore(ctx, state)()
-    dr.drawLifes(ctx, state)()
-    dr.drawLifeText(ctx)()
-  }
-}
-
-var updateGoombas = (state) => {
-  return R.compose(
-    dr.addgoomba(state),
-    dr.movegoombas,
-    dr.filtergoombas,
-    R.prop('goombas')
-  )(state)
-}
-
 var moveMario = () => () => {
   var mario = state.mario
   if (state.keysPressed.right && canMoveRight(mario.x + config.mario.width)) {
@@ -72,10 +52,10 @@ var updateScore = () => () => {
 var main = () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-  updateScore()()
-  state.goombas = updateGoombas(state)
+  state.goombas = dr.updateGoombas(state)
+  dr.draw(ctx, state)()
   moveMario()()
-  draw(ctx, state)()
+  updateScore()()
 }
 
 var canvas = $('#game')[0]

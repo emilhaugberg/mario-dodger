@@ -96,13 +96,27 @@ var drawLifes = (ctx, state) => {
   }
 }
 
+var draw = (ctx, state) => {
+  return () => {
+    drawMario(ctx, state)()
+    drawgoombas(ctx, state)()
+
+    drawScore(ctx, state)()
+    drawLifes(ctx, state)()
+    drawLifeText(ctx)()
+  }
+}
+
+var updateGoombas = (state) => {
+  return R.compose(
+    addgoomba(state),
+    movegoombas,
+    filtergoombas,
+    R.prop('goombas')
+  )(state)
+}
+
 module.exports = {
-  addgoomba: addgoomba,
-  drawgoombas: drawgoombas,
-  movegoombas: movegoombas,
-  filtergoombas: filtergoombas,
-  drawMario: drawMario,
-  drawScore: drawScore,
-  drawLifes: drawLifes,
-  drawLifeText: drawLifeText
+  draw: draw,
+  updateGoombas: updateGoombas
 }
