@@ -1,7 +1,7 @@
 var $ = require('jquery')
 var R = require('ramda')
 
-var draw = require('./game/draw')
+var dr = require('./game/draw')
 var cs = require('./game/config')
 
 var config = cs.config
@@ -33,17 +33,25 @@ var keyUpHandler = (e) => {
   state = updateDirection(keyCodeToDirection(e.keyCode), false, state)
 }
 
+var draw = (ctx, state) => {
+  return () => {
+    dr.drawMario(ctx, state)()
+    dr.drawgoombas(ctx, state)()
+
+    dr.drawScore(ctx, state)()
+    dr.drawLifes(ctx, state)()
+    dr.drawLifeText(ctx)()
+  }
+}
+
+var updateGoombas = (state) => {
+  return R.compose(dr.addgoomba(state), dr.movegoombas, dr.filtergoombas, R.prop('goombas'))(state)
+}
+
 var main = () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-  if (state.frames % 20 == 0) draw.addgoomba()
-
-  draw.drawMario(ctx, state.mario)
-  draw.drawgoombas(ctx)
-  draw.movegoombas(ctx)
-  draw.filtergoombas(ctx)
-  draw.drawScore(ctx)
-  draw.drawLifes(ctx)
+  state.goombas = updateGoombas(state)
 
   if (state.keysPressed.right && state.mario.x + config.mario.width < config.canvas.width) {
     state.mario.x += config.mario.speed
@@ -55,6 +63,8 @@ var main = () => {
   state.frames += 1
 
   if (state.frames % 100 == 0) state.score += 1
+
+  draw(ctx, state)()
 }
 
 var canvas = $('#game')[0]
