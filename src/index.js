@@ -2,31 +2,35 @@ var $ = require('jquery')
 var R = require('ramda')
 
 var draw = require('./game/draw')
-console.log('DRAW: ', draw)
 var cs = require('./game/config')
+
 var config = cs.config
 var state = cs.state
 
+var canMoveRight = (x) => x < config.canvas.width
+var canMoveLeft =  (x) => x > 0
+
+var updateState = R.assocPath
+
+var keyCodeToDirection = R.cond([
+  [ R.equals(config.keyCodes.left),  R.always(config.directions.left)     ],
+  [ R.equals(config.keyCodes.right), R.always(config.directions.right)    ],
+  [ R.T,                             R.always(config.directions.standing) ],
+])
+
+var updateDirection = (direction, moving, state) => {
+  return R.compose(
+    updateState(['mario', 'direction'], direction),
+    updateState(['keysPressed', direction], moving)
+  )(state)
+}
+
 var keyDownHandler = (e) => {
-  if (e.keyCode == config.keyCodes.right) {
-    state.mario.direction = config.directions.right
-    state.keysPressed.right = true
-  }
-  else if (e.keyCode == config.keyCodes.left && state.mario.x > 0) {
-    state.mario.direction = config.directions.left
-    state.keysPressed.left = true
-  }
+  state = updateDirection(keyCodeToDirection(e.keyCode), true, state)
 }
 
 var keyUpHandler = (e) => {
-  if (e.keyCode == config.keyCodes.right) {
-    state.keysPressed.right = false
-    state.mario.direction = config.directions.right
-  }
-  else if (e.keyCode == config.keyCodes.left) {
-    state.keysPressed.left = false
-    state.mario.direction = config.directions.left
-  }
+  state = updateDirection(keyCodeToDirection(e.keyCode), false, state)
 }
 
 var main = () => {

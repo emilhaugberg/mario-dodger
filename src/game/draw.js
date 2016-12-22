@@ -6,6 +6,7 @@ var state = cs.state
 var marioImages = [
   { image: '/assets/images/standing-mario.png', direction: config.directions.right },
   { image: '/assets/images/standing-mario-flipped.png', direction: config.directions.left},
+  { image: '/assets/images/standing-mario.png', direction: config.directions.standing},
 ]
 
 var random = (min, max) => Math.random() * (max - min) + min

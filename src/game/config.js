@@ -35,7 +35,8 @@ var config = {
   },
   directions: {
     left: 'left',
-    right: 'right'
+    right: 'right',
+    standing: 'standing'
   }
 }
 
