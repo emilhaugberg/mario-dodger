@@ -1,165 +1,134 @@
 var $ = require('jquery')
 var R = require('ramda')
 
-var frames  = 0
-var seconds = 0
-
-var dimensions = {
-  width: 1000,
-  height: 600
-}
-
-var state = {
-  enemies: [],
-  keypresses: {
-    left: false,
-    right: false,
-    up: false,
-    down: false
-  },
-  player: {
-    x: dimensions.width / 2,
-    y: dimensions.height / 2,
-    r: 20
-  },
-  balls: []
-}
+var frames = 0
 
 var SPEED = 5
-var BALLSPEED = 3
+var MUSHROOMSPEED = 5
 
-var keyDownHandler = (e) => {
+var width = 75
+var height = 75
 
-    if (e.keyCode === 37) {
-      state.keypresses.left = true
-    }
-    else if (e.keyCode === 39) {
-      state.keypresses.right = true
-    }
-    else if (e.keyCode === 38) {
-      state.keypresses.up = true
-    }
-    else if (e.keyCode === 40) {
-      state.keypresses.down = true
-    }
+var dimensions = {
+  width: 1430,
+  height: 745
 }
 
-var keyUpHandler = (e) => {
-  if (e.keyCode === 37) {
-    state.keypresses.left = false
-  }
-  else if (e.keyCode === 39) {
-    state.keypresses.right = false
-  }
-  else if (e.keyCode === 38) {
-    state.keypresses.up = false
-  }
-  else if (e.keyCode === 40) {
-    state.keypresses.down = false
-  }
+var keyCodes = {
+  left: 37,
+  right: 39
 }
 
-var drawPlayer = () => {
-  ctx.beginPath()
-  ctx.arc(state.player.x, state.player.y, state.player.r, 0, Math.PI * 2, false)
-  ctx.fillStyle = "red"
-  ctx.fill()
-  ctx.closePath()
+var keysPressed = {
+  left: false,
+  right: false
 }
 
-var movePlayer = () => {
-  if (state.keypresses.left) {
-    if (state.player.x > state.player.r) {
-      state.player.x -= SPEED
-    }
-  }
-
-  if (state.keypresses.right) {
-    if (state.player.x < (dimensions.width - state.player.r)) {
-      state.player.x += SPEED
-    }
-  }
-
-  if (state.keypresses.up) {
-    if (state.player.y > state.player.r) {
-      state.player.y -= SPEED
-    }
-  }
-
-  if (state.keypresses.down) {
-    if (state.player.y < (dimensions.height - state.player.r)) {
-      state.player.y += SPEED
-    }
-  }
+var directions = {
+  left: 'left',
+  right: 'right'
 }
+
+var mushrooms = []
+
+var mario = {
+  x: 0,
+  y: dimensions.height - height - 85,
+  direction: directions.right
+}
+
+var marioImages = [
+  { image: '/assets/images/standing-mario.png', direction: directions.right },
+  { image: '/assets/images/standing-mario-flipped.png', direction: directions.left},
+]
 
 var random = (min, max) => Math.random() * (max - min) + min
 
-var addBall = () => {
+var addMushroom = () => {
   var randomR = Math.floor(random(10, 20))
-  var ball = {
+  var randomAttr = random(25, 75)
+  var mush = {
     x: Math.floor(random(randomR, dimensions.width - randomR)),
     y: 0,
-    r: randomR
+    height: Math.floor(randomAttr),
+    width: Math.floor(randomAttr)
   }
 
-  state.balls = R.append(ball, state.balls)
+  mushrooms = R.append(mush, mushrooms)
 }
 
-var drawBall = () => {
-  R.forEach((ball) => {
-    ctx.beginPath()
-    ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2, false)
-    ctx.fillStyle = "blue"
-    ctx.fill()
-    ctx.closePath()
-  }, state.balls)
+var drawMushrooms = () => {
+  R.forEach((mush) => {
+    var img = new Image()
+    img.src = '/assets/images/mushroom.png'
+    ctx.drawImage(img, mush.x, mush.y, mush.width, mush.height)
+  }, mushrooms)
 }
 
-var moveBalls = () => {
-  state.balls = R.map((ball) => {
-    return { x: ball.x, y: ball.y += BALLSPEED, r: ball.r }
-  }, state.balls)
+var moveMushrooms = () => {
+  mushrooms = R.map((mush) => {
+    return { x: mush.x, y: mush.y += MUSHROOMSPEED, width: mush.width, height: mush.height }
+  }, mushrooms)
 }
 
-var removeObsoleteBalls = () => {
-  state.balls = R.reject((ball) => {
-    return (ball.y > dimensions.height - ball.r)
-  }, state.balls)
+var filterMushrooms = () => {
+  mushrooms = R.reject((mush) => mush.y > dimensions.height, mushrooms)
 }
 
-var collision = () => {
-  var collided = (ball) => {
-    if (
-      ball.x + ball.r > state.player.x - state.player.r
-      && ball.x - ball.r < state.player.x + state.player.r
-      && ball.y + ball.r > state.player.y - state.player.r
-      && ball.y - ball.r < state.player.y + state.player.r
-    ) {
-      console.log('collision')
-      clearInterval(main)
-    }
+var drawMario = (ctx, mario) => {
+  var directionToImage = (direction) => {
+    return R.find(
+      R.compose(R.equals(direction), R.prop('direction'))
+    , marioImages)
   }
 
-  R.forEach(collided, state.balls)
+  var imageSrc = R.compose(R.prop('image'), directionToImage)(mario.direction)
+
+  var img = new Image()
+  img.src = imageSrc
+  ctx.drawImage(img, mario.x, mario.y, width, height)
+}
+
+var keyDownHandler = (e) => {
+  if (e.keyCode == keyCodes.right) {
+    mario.direction = directions.right
+    keysPressed.right = true
+  }
+  else if (e.keyCode == keyCodes.left && mario.x > 0) {
+    mario.direction = directions.left
+    keysPressed.left = true
+  }
+}
+
+var keyUpHandler = (e) => {
+  if (e.keyCode == keyCodes.right) {
+    keysPressed.right = false
+    mario.direction = directions.right
+  }
+  else if (e.keyCode == keyCodes.left) {
+    keysPressed.left = false
+    mario.direction = directions.left
+  }
 }
 
 var draw = () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height)
-  drawPlayer()
-  movePlayer()
+  drawMario(ctx, mario)
+
+  if (frames % 20 == 0) addMushroom()
+
+  drawMushrooms()
+  moveMushrooms()
+  filterMushrooms()
+
+  if (keysPressed.right && mario.x + width < dimensions.width) {
+    mario.x += SPEED
+  }
+  else if (keysPressed.left && mario.x > 0) {
+    mario.x -= SPEED
+  }
 
   frames += 1
-  if (frames % 100 == 0) seconds += 1
-  if (frames % 20 == 0) addBall()
-
-  moveBalls()
-  drawBall()
-  removeObsoleteBalls()
-
-  collision()
-
-  $('#seconds').html(seconds)
 }
 
 var canvas = $('#game')[0]

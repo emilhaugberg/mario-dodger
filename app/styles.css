@@ -1,7 +1,13 @@
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
 canvas {
   display: block;
-  margin: 0 auto;
-  margin-top: 75px;
   background-color: #bfbfbf;
   border: 5px solid green;
+  background-image: url('assets/images/mario-background.png');
+  background-size: cover;
+  background-position: bottom;
 }
