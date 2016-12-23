@@ -1,44 +1,22 @@
 var R = require('ramda')
 
-var dr = require('./game/draw')
-var cs = require('./game/config')
+var Config = require('./game/config')
+var Game = require('./game/game')
+var Draw = require('./game/draw')
 
-var config = cs.config
-var state = cs.state
-
-var canMoveRight = (x) => x < config.canvas.width
-var canMoveLeft =  (x) => x > 0
-
-var keyCodeToDirection = R.cond([
-  [ R.equals(config.keyCodes.left),  R.always(config.directions.left)     ],
-  [ R.equals(config.keyCodes.right), R.always(config.directions.right)    ],
-  [ R.T,                             R.always(config.directions.standing) ],
-])
-
-var updateState = R.assocPath
-
-var updateDirection = (direction, moving, state) => {
-  return R.compose(
-    updateState(['mario', 'direction'], direction),
-    updateState(['keysPressed', direction], moving)
-  )(state)
-}
-
-var keyDownHandler = (e) => {
-  state = updateDirection(keyCodeToDirection(e.keyCode), true, state)
-}
-
-var keyUpHandler = (e) => {
-  state = updateDirection(keyCodeToDirection(e.keyCode), false, state)
-}
+var initialState = Config.initialState
+var state = R.clone(initialState)
 
 var moveMario = () => () => {
   var mario = state.mario
-  if (state.keysPressed.right && canMoveRight(mario.x + config.mario.width)) {
-    state.mario.x += config.mario.speed
+  var moveR = state.keysPressed.right && Game.canMoveRight(mario.x + Config.mario.width)
+  var moveL = state.keysPressed.left && Game.canMoveLeft(mario.x > 0)
+
+  if (moveR) {
+    state.mario.x += Config.mario.speed
   }
-  else if (state.keysPressed.left && canMoveLeft(mario.x > 0)) {
-    state.mario.x -= config.mario.speed
+  else if (moveL) {
+    state.mario.x -= Config.mario.speed
   }
 }
 
@@ -47,37 +25,35 @@ var updateScore = () => () => {
   state.frames += 1
 }
 
+var keyDownHandler = (e) => {
+  state = Game.updateDirection(
+    Game.keyCodeToDirection(e.keyCode),
+    true,
+    state
+  )
+}
+
+var keyUpHandler = (e) => {
+  state = Game.updateDirection(
+    Game.keyCodeToDirection(e.keyCode),
+    false,
+    state
+  )
+}
+
+
 // main game loop
 var main = () => {
-  ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-  collisionDetection(state.mario, state.goombas)
-  state.goombas = dr.updateGoombas(state)
-  dr.draw(ctx, state)()
+  Draw.clear(ctx, Config.canvas)()
+  state.goombas = Game.updateGoombas(state)
+  Draw.draw(ctx, state)()
   moveMario()()
   updateScore()()
 
-  if (collisionDetection(state.mario, state.goombas)) {
-    clearInterval(game)
-  }
+  // dr.gameOver(ctx, config.canvas, state)
+  // collisionDetection(state.mario, state.goombas)
+  // detectCollition()
 }
-
-var collisionDetection = (mario, goombas) => {
-  // console.log(mario.x + ' ' + mario.y)
-  var collided = (goomba) => {
-    return (
-         goomba.x >= mario.x
-      && goomba.x + goomba.width <= mario.x + config.mario.width
-      && goomba.y >= mario.y
-      && goomba.y + goomba.height <= mario.y + config.mario.height
-    )
-  }
-
-  return R.compose(R.any(R.equals(true)), R.map(collided))(goombas)
-}
-
-window.collisionDetection = collisionDetection
-window.R = R
 
 var canvas = document.getElementById('game')
 var ctx = canvas.getContext('2d')
@@ -85,7 +61,39 @@ var ctx = canvas.getContext('2d')
 document.onkeydown = keyDownHandler
 document.onkeyup = keyUpHandler
 
-var audio = new Audio('/assets/audio/mario.mp3')
-audio.play()
-
 var game = setInterval(() => main(), 10)
+
+// var audio = new Audio('/assets/audio/mario.mp3')
+// audio.play()
+
+// var removeLife = () => {
+//   var lifes = R.length(state.lifes) - 1
+//
+//   if (lifes >= 0) {
+//     var newLifes = R.compose(R.head, R.splitAt(lifes))(state.lifes)
+//     state.lifes = newLifes
+//     // clearInterval(game)
+//     // game = setInterval(() => main(), 10)
+//   } else {
+//     state.lifes = []
+//   }
+// }
+//
+// var detectCollition = () => {
+//   if (collisionDetection(state.mario, state.goombas)) {
+//     removeLife()
+//   }
+// }
+
+// var collisionDetection = (mario, goombas) => {
+//   var collided = (goomba) => {
+//     return (
+//          goomba.x >= mario.x
+//       && goomba.x + goomba.width <= mario.x + config.mario.width
+//       && goomba.y >= mario.y
+//       && goomba.y + goomba.height <= mario.y + config.mario.height
+//     )
+//   }
+//
+//   return R.compose(R.any(R.equals(true)), R.map(collided))(goombas)
+// }

@@ -1,70 +1,40 @@
 var R = require('ramda')
-var cs = require('./config')
-var config = cs.config
-var state = cs.state
 
-var images = [
-  { image: '/assets/images/standing-mario.png', direction: config.directions.right },
-  { image: '/assets/images/standing-mario-flipped.png', direction: config.directions.left},
-  { image: '/assets/images/standing-mario.png', direction: config.directions.standing},
-]
+var Config = require('./config')
+var Game = require('./game')
 
-var random = (min, max) => Math.floor(Math.random() * (max - min) + min)
-
-var addgoomba = (state) => (goombas) => {
-  var randomDimension = random(
-    config.goombas.dimensions.width.min,
-    config.goombas.dimensions.width.max
-  )
-
-  var mush = {
-    x: random(randomDimension, config.canvas.width - randomDimension),
-    y: 0,
-    height: randomDimension,
-    width: randomDimension
-  }
-
-  return R.ifElse(
-    () => state.frames % 10 == 0,
-    R.append(mush),
-    R.identity
-  )(goombas)
-}
-
-var movegoombas = R.map((mush) => {
-  return { x: mush.x, y: mush.y += config.goombas.speed, width: mush.width, height: mush.height }
-})
-
-var filtergoombas = (goombas) => {
-  return R.reject((mush) => mush.y > config.canvas.height, goombas)
-}
-
-var drawgoombas = (ctx, state) => {
-  return () =>
-    R.forEach((mush) => {
-      var img = new Image()
-      img.src = '/assets/images/goomba.png'
-      ctx.drawImage(img, mush.x, mush.y, mush.width, mush.height)
-    }, state.goombas)
-}
-
-var drawMario = (ctx, state) => {
-  var mario = state.mario
-
-  var directionToImage = (direction) => {
-    return R.find(
-      R.compose(R.equals(direction), R.prop('direction'))
-    , images)
-  }
-
+var drawGoomba = (ctx) => (goomba) => {
   var img = new Image()
-  img.src = R.compose(R.prop('image'), directionToImage)(mario.direction)
+  img.src = '/assets/images/goomba.png'
 
-  return () =>
-    ctx.drawImage(img, mario.x, mario.y, config.mario.width, config.mario.height)
+  ctx.drawImage(img, goomba.x, goomba.y, goomba.width, goomba.height)
 }
 
-var drawScore = (ctx, state) => {
+var goombas = (ctx, state) => {
+  return () =>
+    R.forEach(drawGoomba(ctx), state.goombas)
+}
+
+var drawMario = (ctx) => (mario) => {
+  var marioImg = R.compose(R.prop('image'), Game.directionToImage)(mario.direction)
+  var img = new Image()
+  img.src = marioImg
+
+  return () =>
+    ctx.drawImage(
+      img,
+      mario.x,
+      mario.y,
+      Config.mario.width,
+      Config.mario.height
+    )
+}
+
+var mario = (ctx, state) => {
+  return drawMario(ctx)(state.mario)
+}
+
+var score = (ctx, state) => {
   return () => {
     ctx.font = ('50px VT323')
     ctx.fillStyle = 'white'
@@ -72,7 +42,7 @@ var drawScore = (ctx, state) => {
   }
 }
 
-var drawMushroom = (ctx, x) => {
+var mushroom = (ctx, x) => {
   return () => {
     var img = new Image()
     img.src = '/assets/images/mushroom.png'
@@ -80,7 +50,7 @@ var drawMushroom = (ctx, x) => {
   }
 }
 
-var drawLifeText = (ctx) => {
+var lifeText = (ctx) => {
   return () => {
     ctx.font = ('50px VT323')
     ctx.fillStyle = 'white'
@@ -88,7 +58,7 @@ var drawLifeText = (ctx) => {
   }
 }
 
-var drawLifes = (ctx, state) => {
+var lifes = (ctx, state) => {
   return () => {
     R.forEach((i) =>
       drawMushroom(ctx, i * 50)()
@@ -98,25 +68,27 @@ var drawLifes = (ctx, state) => {
 
 var draw = (ctx, state) => {
   return () => {
-    drawMario(ctx, state)()
-    drawgoombas(ctx, state)()
-
-    drawScore(ctx, state)()
-    drawLifes(ctx, state)()
-    drawLifeText(ctx)()
+    mario(ctx, state)()
+    goombas(ctx, state)()
+    score(ctx, state)()
+    lifes(ctx, state)()
+    lifeText(ctx)()
   }
 }
 
-var updateGoombas = (state) => {
-  return R.compose(
-    addgoomba(state),
-    movegoombas,
-    filtergoombas,
-    R.prop('goombas')
-  )(state)
+var clear = (ctx, canvas) => () => {
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
 }
+// var gameOver = (ctx, canvas, state) => {
+//   if () {
+//     clear(ctx, canvas)()
+//     ctx.font = ('150px VT323')
+//     ctx.fillStyle = 'white'
+//     ctx.fillText('GAME OVER', canvas.width / 2 - 250, canvas.height / 2 - 50)
+//   }
+// }
 
 module.exports = {
   draw: draw,
-  updateGoombas: updateGoombas
+  clear: clear
 }
