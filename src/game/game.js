@@ -8,6 +8,8 @@ var canMoveLeft =  (x) => x > 0
 
 var updateState = R.assocPath
 
+var shouldScoreUpdate = (frames) => R.equals(R.modulo(frames, 100), 0)
+
 var keyCodeToDirection = R.cond([
   [ R.equals(Config.keyCodes.left),  R.always(Config.directions.left)     ],
   [ R.equals(Config.keyCodes.right), R.always(Config.directions.right)    ],
@@ -19,7 +21,7 @@ var directionToImage = (direction) => {
   return R.find(equalDirection, Config.images)
 }
 
-var updateDirection = (direction, moving, state) => {
+var updatePressedKeys = (direction, moving, state) => {
   return R.compose(
     updateState(['mario', 'direction'], direction),
     updateState(['keysPressed', direction], moving)
@@ -81,10 +83,11 @@ var gameOver = R.compose(R.isEmpty, R.prop('lifes'))
 module.exports = {
   updateGoombas: updateGoombas,
   updateState: updateState,
-  updateDirection: updateDirection,
+  updatePressedKeys: updatePressedKeys,
   canMoveLeft: canMoveLeft,
   canMoveRight: canMoveRight,
   keyCodeToDirection: keyCodeToDirection,
   directionToImage: directionToImage,
-  gameOver: gameOver
+  gameOver: gameOver,
+  shouldScoreUpdate: shouldScoreUpdate
 }

@@ -7,26 +7,70 @@ var Draw = require('./game/draw')
 var initialState = Config.initialState
 var state = R.clone(initialState)
 
-var moveMario = () => () => {
+var updateState = (propPath, value, oldState) => {
+  var newState = R.assocPath(propPath, value, oldState)
+
+  return () => {
+    state = newState
+  }
+}
+
+var updateMario = (state) => () => {
   var mario = state.mario
   var moveR = state.keysPressed.right && Game.canMoveRight(mario.x + Config.mario.width)
   var moveL = state.keysPressed.left && Game.canMoveLeft(mario.x > 0)
 
   if (moveR) {
-    state.mario.x += Config.mario.speed
+    var newMarioPos = state.mario.x + Config.mario.speed
+    updateState(['mario', 'x'], newMarioPos, state)()
   }
   else if (moveL) {
-    state.mario.x -= Config.mario.speed
+    var newMarioPos = state.mario.x - Config.mario.speed
+    updateState(['mario', 'x'], newMarioPos, state)()
   }
 }
 
-var updateScore = () => () => {
-  if (state.frames % 100 == 0) state.score += 1
-  state.frames += 1
+var updateGoombas = (oldState) => {
+  var newGoombas = Game.updateGoombas(oldState)
+
+  return () => updateState(['goombas'], newGoombas, oldState)()
 }
 
+var updateScore = (oldState) => {
+  var score = Game.shouldScoreUpdate(oldState.frames)
+            ? state.score + 1
+            : state.score
+
+  return () => updateState(['score'], score, oldState)()
+}
+
+var updateFrames = (oldState) => {
+  var newFrames = oldState.frames + 1
+  return () => updateState(['frames'], newFrames, oldState)()
+}
+
+var draw = (ctx, state) => {
+  return () => {
+    Draw.clear(ctx, Config.canvas)()
+    Draw.draw(ctx, state)()
+  }
+}
+
+// main game loop
+var main = () => {
+  draw(ctx, state)()
+  updateGoombas(state)()
+  updateMario(state)()
+  updateScore(state)()
+  updateFrames(state)()
+
+}
+
+var canvas = document.getElementById('game')
+var ctx = canvas.getContext('2d')
+
 var keyDownHandler = (e) => {
-  state = Game.updateDirection(
+  state = Game.updatePressedKeys(
     Game.keyCodeToDirection(e.keyCode),
     true,
     state
@@ -34,66 +78,14 @@ var keyDownHandler = (e) => {
 }
 
 var keyUpHandler = (e) => {
-  state = Game.updateDirection(
+  state = Game.updatePressedKeys(
     Game.keyCodeToDirection(e.keyCode),
     false,
     state
   )
 }
 
-
-// main game loop
-var main = () => {
-  Draw.clear(ctx, Config.canvas)()
-  state.goombas = Game.updateGoombas(state)
-  Draw.draw(ctx, state)()
-  moveMario()()
-  updateScore()()
-
-  // dr.gameOver(ctx, config.canvas, state)
-  // collisionDetection(state.mario, state.goombas)
-  // detectCollition()
-}
-
-var canvas = document.getElementById('game')
-var ctx = canvas.getContext('2d')
-
 document.onkeydown = keyDownHandler
 document.onkeyup = keyUpHandler
 
 var game = setInterval(() => main(), 10)
-
-// var audio = new Audio('/assets/audio/mario.mp3')
-// audio.play()
-
-// var removeLife = () => {
-//   var lifes = R.length(state.lifes) - 1
-//
-//   if (lifes >= 0) {
-//     var newLifes = R.compose(R.head, R.splitAt(lifes))(state.lifes)
-//     state.lifes = newLifes
-//     // clearInterval(game)
-//     // game = setInterval(() => main(), 10)
-//   } else {
-//     state.lifes = []
-//   }
-// }
-//
-// var detectCollition = () => {
-//   if (collisionDetection(state.mario, state.goombas)) {
-//     removeLife()
-//   }
-// }
-
-// var collisionDetection = (mario, goombas) => {
-//   var collided = (goomba) => {
-//     return (
-//          goomba.x >= mario.x
-//       && goomba.x + goomba.width <= mario.x + config.mario.width
-//       && goomba.y >= mario.y
-//       && goomba.y + goomba.height <= mario.y + config.mario.height
-//     )
-//   }
-//
-//   return R.compose(R.any(R.equals(true)), R.map(collided))(goombas)
-// }

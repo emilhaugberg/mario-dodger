@@ -1,7 +1,7 @@
 var width = 75
 var height = 75
 
-var groundHeight = 85
+var groundHeight = 75
 
 var marioHeight = 75
 var marioWidth = 75
@@ -43,8 +43,13 @@ var keyCodes = {
 }
 
 var canvas = {
-  width: 1430,
-  height: 745
+  width: 1280,
+  height: 655
+}
+
+var score = {
+  x: 1050,
+  y: 65
 }
 
 var mario = {
@@ -83,5 +88,6 @@ module.exports = {
   mario: mario,
   goomba: goomba,
   initialState: initialState,
-  images: images
+  images: images,
+  score: score
 }

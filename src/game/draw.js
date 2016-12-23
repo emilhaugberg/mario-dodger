@@ -38,7 +38,7 @@ var score = (ctx, state) => {
   return () => {
     ctx.font = ('50px VT323')
     ctx.fillStyle = 'white'
-    ctx.fillText('Score: ' + state.score, 1175, 65)
+    ctx.fillText('Score: ' + state.score, Config.score.x, Config.score.y)
   }
 }
 

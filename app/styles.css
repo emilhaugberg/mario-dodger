@@ -6,7 +6,6 @@ html, body {
 canvas {
   display: block;
   background-color: #bfbfbf;
-  border: 5px solid green;
   background-image: url('assets/images/mario-background.png');
   background-size: cover;
   background-position: bottom;
