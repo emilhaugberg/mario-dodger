@@ -50,29 +50,11 @@ var mushroom = (ctx, x) => {
   }
 }
 
-var lifeText = (ctx) => {
-  return () => {
-    ctx.font = ('50px VT323')
-    ctx.fillStyle = 'white'
-    ctx.fillText('Lifes', 75, 50)
-  }
-}
-
-var lifes = (ctx, state) => {
-  return () => {
-    R.forEach((i) =>
-      drawMushroom(ctx, i * 50)()
-    , state.lifes)
-  }
-}
-
 var draw = (ctx, state) => {
   return () => {
     mario(ctx, state)()
     goombas(ctx, state)()
     score(ctx, state)()
-    lifes(ctx, state)()
-    lifeText(ctx)()
   }
 }
 
