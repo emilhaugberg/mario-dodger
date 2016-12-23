@@ -15,6 +15,8 @@ var updateState = (propPath, value, oldState) => {
   }
 }
 
+var stop = () => clearInterval(game)
+
 var updateMario = (state) => () => {
   var mario = state.mario
   var moveR = state.keysPressed.right && Game.canMoveRight(mario.x + Config.mario.width)
@@ -49,25 +51,20 @@ var updateFrames = (oldState) => {
   return () => updateState(['frames'], newFrames, oldState)()
 }
 
+var detectCollition = (state, ctx) => () => {
+  var thereIsCollision = Game.marioCollided(state.mario, state.goombas)
+  if (thereIsCollision) {
+    stop()
+    Draw.gameOver(ctx)()
+  }
+}
+
 var draw = (ctx, state) => {
   return () => {
     Draw.clear(ctx, Config.canvas)()
     Draw.draw(ctx, state)()
   }
 }
-
-// main game loop
-var main = () => {
-  draw(ctx, state)()
-  updateGoombas(state)()
-  updateMario(state)()
-  updateScore(state)()
-  updateFrames(state)()
-
-}
-
-var canvas = document.getElementById('game')
-var ctx = canvas.getContext('2d')
 
 var keyDownHandler = (e) => {
   state = Game.updatePressedKeys(
@@ -88,4 +85,20 @@ var keyUpHandler = (e) => {
 document.onkeydown = keyDownHandler
 document.onkeyup = keyUpHandler
 
-var game = setInterval(() => main(), 10)
+var canvas = document.getElementById('game')
+var ctx = canvas.getContext('2d')
+
+// main game loop
+var main = () => {
+  draw(ctx, state)()
+  updateGoombas(state)()
+  updateMario(state)()
+  updateScore(state)()
+  updateFrames(state)()
+  detectCollition(state, ctx)()
+}
+
+var game = setInterval(main, 10)
+
+// var audio = new Audio('/assets/audio/mario.mp3')
+// audio.play()

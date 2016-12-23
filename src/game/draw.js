@@ -76,19 +76,19 @@ var draw = (ctx, state) => {
   }
 }
 
-var clear = (ctx, canvas) => () => {
-  ctx.clearRect(0, 0, canvas.width, canvas.height)
+var clear = (ctx) => () => {
+  ctx.clearRect(0, 0, Config.canvas.width, Config.canvas.height)
 }
-// var gameOver = (ctx, canvas, state) => {
-//   if () {
-//     clear(ctx, canvas)()
-//     ctx.font = ('150px VT323')
-//     ctx.fillStyle = 'white'
-//     ctx.fillText('GAME OVER', canvas.width / 2 - 250, canvas.height / 2 - 50)
-//   }
-// }
+
+var gameOver = (ctx) => () => {
+  clear(ctx)()
+  ctx.font = ('150px VT323')
+  ctx.fillStyle = 'white'
+  ctx.fillText('GAME OVER', Config.canvas.width / 2 - 250, Config.canvas.height / 2 - 50)
+}
 
 module.exports = {
   draw: draw,
-  clear: clear
+  clear: clear,
+  gameOver: gameOver
 }

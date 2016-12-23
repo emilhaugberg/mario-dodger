@@ -78,6 +78,22 @@ var updateGoombas = (state) => {
   )(state)
 }
 
+var marioCollided = (mario, goombas) => {
+    var collided = (goomba) => {
+      return (
+           goomba.x >= mario.x
+        && goomba.x + goomba.width <= mario.x + Config.mario.width
+        && goomba.y >= mario.y
+        && goomba.y + goomba.height <= mario.y + Config.mario.height
+      )
+    }
+
+    return R.compose(
+      R.any(R.equals(true)),
+      R.map(collided)
+    )(goombas)
+}
+
 var gameOver = R.compose(R.isEmpty, R.prop('lifes'))
 
 module.exports = {
@@ -89,5 +105,6 @@ module.exports = {
   keyCodeToDirection: keyCodeToDirection,
   directionToImage: directionToImage,
   gameOver: gameOver,
-  shouldScoreUpdate: shouldScoreUpdate
+  shouldScoreUpdate: shouldScoreUpdate,
+  marioCollided: marioCollided
 }
