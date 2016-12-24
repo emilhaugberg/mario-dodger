@@ -100,5 +100,6 @@ var main = () => {
 
 var game = setInterval(main, 10)
 
+// Remove comments for audio ;)
 // var audio = new Audio('/assets/audio/mario.mp3')
 // audio.play()
