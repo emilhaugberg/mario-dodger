@@ -17,6 +17,11 @@ var updateState = (propPath, value, oldState) => {
 
 var stop = () => clearInterval(game)
 
+var restart = () => {
+  state = initialState
+  game = setInterval(main, 10)
+}
+
 var updateMario = (state) => () => {
   var mario = state.mario
   var moveR = state.keysPressed.right && Game.canMoveRight(mario.x + Config.mario.width)
@@ -55,7 +60,8 @@ var detectCollision = (state, ctx) => () => {
   var thereIsCollision = Game.marioCollided(state.mario, state.goombas)
   if (thereIsCollision) {
     stop()
-    Draw.gameOver(ctx)()
+    Draw.gameOver(ctx, state)()
+    updateState(['gameOver'], true, state)()
   }
 }
 
@@ -75,11 +81,17 @@ var keyDownHandler = (e) => {
 }
 
 var keyUpHandler = (e) => {
-  state = Game.updatePressedKeys(
-    Game.keyCodeToDirection(e.keyCode),
-    false,
-    state
-  )
+  if (state.gameOver) {
+    if (R.equals(e.keyCode, Config.keyCodes.restart)) {
+      restart()
+    }
+  } else {
+    state = Game.updatePressedKeys(
+      Game.keyCodeToDirection(e.keyCode),
+      false,
+      state
+    )
+  }
 }
 
 document.onkeydown = keyDownHandler

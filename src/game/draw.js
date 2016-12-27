@@ -62,11 +62,15 @@ var clear = (ctx) => () => {
   ctx.clearRect(0, 0, Config.canvas.width, Config.canvas.height)
 }
 
-var gameOver = (ctx) => () => {
+var gameOver = (ctx, state) => () => {
   clear(ctx)()
   ctx.font = ('150px VT323')
   ctx.fillStyle = 'white'
   ctx.fillText('GAME OVER', Config.canvas.width / 2 - 250, Config.canvas.height / 2 - 50)
+  ctx.font = ('50px VT323')
+  ctx.fillText('press R to restart', Config.canvas.width / 2 - 250, Config.canvas.height / 2)
+  ctx.font = ('50px VT323')
+  ctx.fillText('Score:' + state.score, Config.canvas.width / 2 + 130, Config.canvas.height / 2)
 }
 
 module.exports = {

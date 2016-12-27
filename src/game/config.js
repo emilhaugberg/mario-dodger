@@ -39,7 +39,8 @@ var goombaHeight = {
 
 var keyCodes = {
   left: 37,
-  right: 39
+  right: 39,
+  restart: 82
 }
 
 var canvas = {
@@ -78,7 +79,8 @@ var initialState = {
   keysPressed: {
     left: false,
     right: false
-  }
+  },
+  gameOver: false
 }
 
 module.exports = {
@@ -89,5 +91,5 @@ module.exports = {
   goomba: goomba,
   initialState: initialState,
   images: images,
-  score: score
+  score: score,
 }
