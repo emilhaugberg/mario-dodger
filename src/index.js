@@ -51,7 +51,7 @@ var updateFrames = (oldState) => {
   return () => updateState(['frames'], newFrames, oldState)()
 }
 
-var detectCollition = (state, ctx) => () => {
+var detectCollision = (state, ctx) => () => {
   var thereIsCollision = Game.marioCollided(state.mario, state.goombas)
   if (thereIsCollision) {
     stop()
@@ -95,7 +95,7 @@ var main = () => {
   updateMario(state)()
   updateScore(state)()
   updateFrames(state)()
-  detectCollition(state, ctx)()
+  detectCollision(state, ctx)()
 }
 
 var game = setInterval(main, 10)
