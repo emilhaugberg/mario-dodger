@@ -26,15 +26,12 @@ var updateMario = (state) => () => {
   var mario = state.mario
   var moveR = state.keysPressed.right && Game.canMoveRight(mario.x + Config.mario.width)
   var moveL = state.keysPressed.left && Game.canMoveLeft(mario.x > 0)
+  var newMarioPos = moveR
+                  ? state.mario.x + Config.mario.speed
+                  : moveL ? state.mario.x - Config.mario.speed
+                  : state.mario.x
 
-  if (moveR) {
-    var newMarioPos = state.mario.x + Config.mario.speed
-    updateState(['mario', 'x'], newMarioPos, state)()
-  }
-  else if (moveL) {
-    var newMarioPos = state.mario.x - Config.mario.speed
-    updateState(['mario', 'x'], newMarioPos, state)()
-  }
+  updateState(['mario', 'x'], newMarioPos, state)()
 }
 
 var updateGoombas = (oldState) => {
@@ -81,17 +78,17 @@ var keyDownHandler = (e) => {
 }
 
 var keyUpHandler = (e) => {
-  if (state.gameOver) {
-    if (R.equals(e.keyCode, Config.keyCodes.restart)) {
-      restart()
-    }
-  } else {
+  var shouldRestart =
+    state.gameOver && R.equals(e.keyCode, Config.keyCodes.restart)
+  var update = () => {
     state = Game.updatePressedKeys(
       Game.keyCodeToDirection(e.keyCode),
       false,
       state
     )
   }
+
+  if (!shouldRestart) { update() } else { restart() }
 }
 
 document.onkeydown = keyDownHandler
