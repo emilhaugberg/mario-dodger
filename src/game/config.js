@@ -4,7 +4,7 @@ var height = 75
 var groundHeight = 75
 
 var marioHeight = 75
-var marioWidth = 75
+var marioWidth = 45
 
 var directions = {
   left: 'left',
@@ -57,11 +57,9 @@ var mario = {
   speed: 7,
   width: marioWidth,
   height: marioHeight,
-  pos: {
-    x: 0,
-    y: canvas.height - marioHeight - groundHeight,
-    direction: directions.right
-  }
+  x: 0,
+  y: canvas.height - marioHeight - groundHeight,
+  direction: directions.right
 }
 
 var goomba = {
@@ -71,7 +69,7 @@ var goomba = {
 }
 
 var initialState = {
-  mario: mario.pos,
+  mario: mario,
   goombas: [],
   lifes: 3,
   frames: 0,

@@ -81,10 +81,10 @@ var updateGoombas = (state) => {
 var marioCollided = (mario, goombas) => {
     var collided = (goomba) => {
       return (
-           goomba.x >= mario.x
-        && goomba.x + goomba.width <= mario.x + Config.mario.width
-        && goomba.y >= mario.y
-        && goomba.y + goomba.height <= mario.y + Config.mario.height
+        mario.x < goomba.x + goomba.width &&
+        mario.x + mario.width > goomba.x &&
+        mario.y < goomba.y + goomba.height &&
+        mario.height + mario.y > goomba.y
       )
     }
 
