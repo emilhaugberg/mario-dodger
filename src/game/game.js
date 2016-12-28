@@ -8,8 +8,6 @@ var canMoveLeft =  (x) => x > 0
 
 var updateState = R.assocPath
 
-var shouldScoreUpdate = (frames) => R.equals(R.modulo(frames, 100), 0)
-
 var keyCodeToDirection = R.cond([
   [ R.equals(Config.keyCodes.left),  R.always(Config.directions.left)     ],
   [ R.equals(Config.keyCodes.right), R.always(Config.directions.right)    ],
@@ -105,6 +103,5 @@ module.exports = {
   keyCodeToDirection: keyCodeToDirection,
   directionToImage: directionToImage,
   gameOver: gameOver,
-  shouldScoreUpdate: shouldScoreUpdate,
   marioCollided: marioCollided
 }

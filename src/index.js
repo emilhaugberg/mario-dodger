@@ -41,9 +41,7 @@ var updateGoombas = (oldState) => {
 }
 
 var updateScore = (oldState) => {
-  var score = Game.shouldScoreUpdate(oldState.frames)
-            ? state.score + 1
-            : state.score
+  var score = R.add(1, oldState.score)
 
   return () => updateState(['score'], score, oldState)()
 }
