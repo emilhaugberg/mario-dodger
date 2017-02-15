@@ -86,10 +86,7 @@ var marioCollided = (mario, goombas) => {
       )
     }
 
-    return R.compose(
-      R.any(R.equals(true)),
-      R.map(collided)
-    )(goombas)
+    return R.any(collided, goombas)
 }
 
 var gameOver = R.compose(R.isEmpty, R.prop('lifes'))
