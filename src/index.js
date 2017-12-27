@@ -76,7 +76,9 @@ var keyDownHandler = (e) => {
 }
 
 var keyUpHandler = (e) => {
-  var shouldRestart = state.gameOver && R.equals(e.keyCode, Config.keyCodes.restart)
+  var shouldRestart = state.gameOver &&
+    R.equals(e.keyCode, Config.keyCodes.restart)
+
   var update = () => {
     state = Game.updatePressedKeys(
       Game.keyCodeToDirection(e.keyCode),

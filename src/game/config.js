@@ -1,6 +1,3 @@
-var width = 75
-var height = 75
-
 var groundHeight = 75
 
 var marioHeight = 75
@@ -89,5 +86,5 @@ module.exports = {
   goomba: goomba,
   initialState: initialState,
   images: images,
-  score: score,
+  score: score
 }
